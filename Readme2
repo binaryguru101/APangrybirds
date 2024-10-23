@@ -1,0 +1,11 @@
+
+Overview:
+
+Navigate to the LwjLauncher, where the main code runs. From there, you can adjust the screen size and width.
+
+After that, a splash screen featuring an Angry Birds image (sourced from Google) will appear for 2-5 seconds, transitioning into the main screen. This screen includes three buttons: Play, Settings, and Exit. Selecting Exit will quit the game, while Play will take you to the Level Screen, which currently has three levels (all identical). Clicking on a level will lead you to the Play Screen, where you’ll see a catapult, a bird, and a pig, along with a HUD displaying the timer and lives.
+
+Additionally, pressing W will take you to the Endgame Screen, and pressing Escape will open the Pause Screen. Here, you can choose to continue (which resumes the game, as we have not yet implemented serialization) or return to the main menu, where you can access the Exit and Settings options.
+
+We have used various images from Google, primarily from the Angry Birds Collections PNG, and the HUD design is inspired by LIBGDX's Mario game development resources.
+

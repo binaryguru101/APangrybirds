@@ -40,13 +40,13 @@ public class HUD {
         table.top();
         table.setFillParent(true); // table is size of the stage
 
-        CountdownLabel = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        ScoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        TimeLabel = new Label("TIME", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        LevelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        WorldLabel = new Label("WORLD", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        Angrybirds = new Label("ANGRYBIRDS", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        LivesLabel = new Label("LIVES: " + lives, new Label.LabelStyle(new BitmapFont(), Color.WHITE)); // Initialize LivesLabel
+        CountdownLabel = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        ScoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        TimeLabel = new Label("TIME", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        LevelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        WorldLabel = new Label("WORLD", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        Angrybirds = new Label("ANGRYBIRDS", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        LivesLabel = new Label("LIVES: " + lives, new Label.LabelStyle(new BitmapFont(), Color.BLACK)); // Initialize LivesLabel
 
 
         table.add(Angrybirds).expandX().padTop(10);

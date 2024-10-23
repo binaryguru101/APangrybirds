@@ -21,10 +21,8 @@ public class Pigs extends Sprite {
     public Pigs(World world, float x, float y, String texturePath) {
         this.world = world;
 
-        // Define pig body
         definePig(x, y);
 
-        // Load pig texture
         pigTexture = new Texture(Gdx.files.internal(texturePath));
         setBounds(0, 0, PIG_RADIUS * 2, PIG_RADIUS * 2);
         setRegion(pigTexture);
@@ -37,7 +35,7 @@ public class Pigs extends Sprite {
     protected void definePig(float x, float y) {
         BodyDef pigDef = new BodyDef();
         pigDef.position.set(x, y);
-        pigDef.type = BodyDef.BodyType.DynamicBody; // Can be StaticBody if you don't want it to move
+        pigDef.type = BodyDef.BodyType.StaticBody; // Can be StaticBody if you don't want it to move
 
         pigbody = world.createBody(pigDef);
 
@@ -56,7 +54,6 @@ public class Pigs extends Sprite {
 
 
     public void update(float dt) {
-        // Update the position of the pig sprite based on the pig body's position
         setPosition(pigbody.getPosition().x - getWidth() / 2, pigbody.getPosition().y - getHeight() / 2);
         System.out.println("Pig Position: " + pigbody.getPosition());  // Debug log
 

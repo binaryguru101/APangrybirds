@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.binaryguru101.AP.Screens.NewScreen;
 import io.github.binaryguru101.AP.Screens.PlayScreen;
+import io.github.binaryguru101.AP.Screens.SplashScreen;
 
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -18,8 +19,10 @@ public class AngryBirdsGame extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        setScreen(new NewScreen(this));
+//        setScreen(new NewScreen(this));
 //        setScreen(new PlayScreen(this));
+        setScreen(new SplashScreen(this));
+
         isPaused = false;
 
     }

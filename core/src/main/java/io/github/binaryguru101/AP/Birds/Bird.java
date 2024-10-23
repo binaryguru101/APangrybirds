@@ -53,7 +53,6 @@ public abstract class Bird extends Sprite {
     }
 
     public void update(float dt) {
-        // This is key for positioning the bird's Sprite on the screen
         setPosition(birdbody.getPosition().x - getWidth() / 2, birdbody.getPosition().y - getHeight() / 2);
         System.out.println("Bird Position: " + birdbody.getPosition());  // Debug log
     }
@@ -64,17 +63,14 @@ public abstract class Bird extends Sprite {
 
     public void launch(Vector2 startPosition, Vector2 currentPosition) {
         if (!isLaunched) {
-            // Calculate the pull vector
             Vector2 pullVector = new Vector2(startPosition.x - currentPosition.x, startPosition.y - currentPosition.y);
 
-            // Scale the pull vector for force application
-            float pullDistance = pullVector.len(); // Get the distance pulled back
-            pullVector.nor(); // Normalize the vector to get the direction
 
-            // Create a launch force based on the pull distance
+            float pullDistance = pullVector.len();
+            pullVector.nor();
+
             Vector2 launchForce = pullVector.scl(pullDistance * 10); // Adjust the multiplier for desired launch strength
 
-            // Apply the impulse to the bird's body
             birdbody.applyLinearImpulse(launchForce, birdbody.getWorldCenter(), true);
             isLaunched = true;
         }

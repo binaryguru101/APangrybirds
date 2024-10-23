@@ -22,7 +22,6 @@ public class Trajectory {
         Vector2 velocity = initialVelocity.cpy();
         float timeStep = 1 / 60f; // The time step for prediction
 
-        // Simulate trajectory by predicting future positions
         for (int i = 0; i < 50; i++) {
             position.add(velocity.cpy().scl(timeStep));
             velocity.add(0, -9.8f * timeStep);

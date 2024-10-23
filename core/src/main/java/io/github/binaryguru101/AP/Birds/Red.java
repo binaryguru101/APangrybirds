@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Red extends Bird{
 
     public Red(World world, Float x, Float y, String Texturepath) {
-        super(world, x, y, "Blue.jpeg");
+        super(world, x, y, "Red.png");
     }
 
     @Override

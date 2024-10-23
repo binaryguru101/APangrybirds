@@ -6,7 +6,7 @@ public class Yellow extends Bird {
     private static final float SPEED_BOOST = 10000f; // Adjust this value for desired boost
 
     public Yellow(World world, Float x, Float y, String texturePath) {
-        super(world, x, y, "Yellow.jpeg");
+        super(world, x, y, "Yellow.png");
     }
 
     @Override

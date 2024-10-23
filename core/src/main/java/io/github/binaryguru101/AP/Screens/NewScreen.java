@@ -1,77 +1,102 @@
 package io.github.binaryguru101.AP.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.binaryguru101.AP.AngryBirdsGame;
 import io.github.binaryguru101.AP.Levels.LevelsScreen;
 
-public class NewScreen extends ScreenAdapter {
-    private final Stage stage;
-    private final Skin skin;
-    private AngryBirdsGame game;
+public class NewScreen implements Screen {
+    private final AngryBirdsGame game;
+    private Texture background;
+    private SpriteBatch batch;
+    private Stage stage;
 
     public NewScreen(AngryBirdsGame game) {
-        this.game=game;
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
-
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
-
-        // Create buttons
-        TextButton newGameButton = new TextButton("New Game", skin);
-        TextButton levelsButton = new TextButton("Levels", skin);
-
-        // Set up button actions
-        newGameButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-                // Handle new game logic here
-                System.out.println("New Game clicked");
-                game.setScreen(new LevelsScreen(game));
-                // Set the game screen or perform actions to start a new game
-            }
-        });
-
-        levelsButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-                // Handle levels logic here
-                System.out.println("Levels clicked");
-                game.setScreen(new LevelsScreen(game));
-            }
-        });
-
-        // Create a table to organize the buttons
-        Table table = new Table();
-        table.setFillParent(true);
-        table.add(newGameButton).fillX().uniformX();
-        table.row().pad(10, 0, 10, 0);
-        table.add(levelsButton).fillX().uniformX();
-
-        // Add the table to the stage
-        stage.addActor(table);
+        this.game = game;
     }
 
     @Override
     public void show() {
+        batch = new SpriteBatch();
+        stage = new Stage(new ScreenViewport());
 
+        // Load background texture
+        background = new Texture(Gdx.files.internal("background.jpg"));
+
+        // Load button textures
+        Texture playButtonTexture = new Texture(Gdx.files.internal("play_button.png"));
+        Texture exitButtonTexture = new Texture(Gdx.files.internal("Quit.png"));
+        Texture settingsButtonTexture = new Texture(Gdx.files.internal("Settings.png"));
+
+        // Create buttons
+        ImageButton playButton = new ImageButton(new TextureRegionDrawable(playButtonTexture));
+        ImageButton exitButton = new ImageButton(new TextureRegionDrawable(exitButtonTexture));
+        ImageButton settingsButton = new ImageButton(new TextureRegionDrawable(settingsButtonTexture));
+
+
+        float buttonScale = 0.5f; // Adjust the scale factor as needed
+        playButton.setSize(playButton.getWidth() * buttonScale, playButton.getHeight() * buttonScale);
+        exitButton.setSize(exitButton.getWidth() * buttonScale, exitButton.getHeight() * buttonScale);
+        settingsButton.setSize(settingsButton.getWidth() * buttonScale, settingsButton.getHeight() * buttonScale);
+
+
+        playButton.setPosition((Gdx.graphics.getWidth() - playButton.getWidth()) / 2, Gdx.graphics.getHeight() / 2);
+        exitButton.setPosition(50, 100);  // Adjusted position for bottom-left
+        settingsButton.setPosition(Gdx.graphics.getWidth() - settingsButton.getWidth() - 50, 100);  // Adjusted position for bottom-right
+
+
+        playButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Transition to the game screen when play button is clicked
+                game.setScreen(new LevelsScreen(game)); // Replace with your actual game screen
+            }
+        });
+
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit(); // Exit the application when exit button is clicked
+            }
+        });
+
+        settingsButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+
+//                game.setScreen(new SettingsScreen(game)); // Replace with  actual settings screen
+            }
+        });
+
+        // Add buttons to the stage
+        stage.addActor(playButton);
+        stage.addActor(exitButton);
+        stage.addActor(settingsButton);
+
+
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Draw the stage
-        stage.act();
+        batch.begin();
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());  // Cover the screen with background
+        batch.end();
+
+        // Draw the buttons (stage)
+        stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }
 
@@ -81,23 +106,18 @@ public class NewScreen extends ScreenAdapter {
     }
 
     @Override
-    public void pause() {
-        // Handle pause events
-    }
+    public void pause() { }
 
     @Override
-    public void resume() {
-        // Handle resume events
-    }
+    public void resume() { }
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() { }
 
     @Override
     public void dispose() {
+        background.dispose();
+        batch.dispose();
         stage.dispose();
-        skin.dispose();
     }
 }

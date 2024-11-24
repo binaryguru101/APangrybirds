@@ -12,15 +12,27 @@ public class Yellow extends Bird {
     @Override
     public void useSpecialAbility() {
         // Check if the bird is currently launched
-        if (isLaunched) {
-            // Get the current velocity
-            Vector2 currentVelocity = birdbody.getLinearVelocity();
-            System.out.println("Current Velocity: " + currentVelocity);
-            // Apply the speed boost
-            Vector2 boostedVelocity = new Vector2(currentVelocity.x + SPEED_BOOST, currentVelocity.y);
-            birdbody.setLinearVelocity(boostedVelocity);
-            System.out.println("Boosted Velocity: " + birdbody.getLinearVelocity());
+        System.out.println("Yellow useSpecialAbility");
 
-        }
+        System.out.println("Yellow useSpecialAbility2");
+
+                System.out.println("Yellow useSpecialAbility3");
+                // Get the current velocity
+                Vector2 currentVelocity = birdbody.getLinearVelocity();
+                System.out.println("Current Velocity: " + currentVelocity);
+                // Apply the speed boost
+
+                Vector2 boostedVelocity = new Vector2(currentVelocity.x * 100, currentVelocity.y*20);
+                birdbody.setLinearVelocity(boostedVelocity);
+                Vector2 force = currentVelocity.nor().scl(1000); // Apply force in the direction of current velocity
+                birdbody.applyForceToCenter(force, true);
+                birdbody.setLinearDamping(0);
+
+                System.out.println("Boosted Velocity: " + birdbody.getLinearVelocity());
+
+
+
+
+
     }
 }

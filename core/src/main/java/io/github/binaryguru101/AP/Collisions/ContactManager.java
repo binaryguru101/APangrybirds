@@ -3,14 +3,14 @@ package io.github.binaryguru101.AP.Collisions;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import io.github.binaryguru101.AP.Birds.Bird;
+import io.github.binaryguru101.AP.Birds.GameMembers;
 import io.github.binaryguru101.AP.Pigs.Pigs;
 
-public class Contact implements ContactListener {
+public class ContactManager implements ContactListener {
 
     @Override
     public void beginContact(com.badlogic.gdx.physics.box2d.Contact contact) {
 
-            // Check if the contact involves a bird and a pig
             Object userDataA = contact.getFixtureA().getUserData();
             Object userDataB = contact.getFixtureB().getUserData();
 
@@ -38,8 +38,23 @@ public class Contact implements ContactListener {
 
     }
 
-    @Override
-    public void postSolve(com.badlogic.gdx.physics.box2d.Contact contact, ContactImpulse contactImpulse) {
+        @Override
+        public void postSolve(com.badlogic.gdx.physics.box2d.Contact contact, ContactImpulse impulse) {
+            Object objA = contact.getFixtureA().getBody().getUserData();
+            Object objB = contact.getFixtureB().getBody().getUserData();
 
+            if (objA instanceof GameMembers && objB instanceof GameMembers) {
+                // Calculate the total impulse (force) from the contact
+                float totalImpulse = 0f;
+                for (float normalImpulse : impulse.getNormalImpulses()) {
+                    totalImpulse += normalImpulse;
+                }
+
+                // Pass the calculated force to the onCollision method
+                ((GameMembers) objA)._Collision(contact.getFixtureB().getBody(), totalImpulse);
+                ((GameMembers) objB)._Collision(contact.getFixtureA().getBody(), totalImpulse);
+            }
+        }
     }
-}
+
+

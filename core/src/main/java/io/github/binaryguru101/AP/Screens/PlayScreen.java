@@ -10,9 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -24,8 +22,10 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import io.github.binaryguru101.AP.AngryBirdsGame;
 import io.github.binaryguru101.AP.Birds.Bird;
+import io.github.binaryguru101.AP.Birds.Black;
 import io.github.binaryguru101.AP.Birds.Red;
-import io.github.binaryguru101.AP.Collisions.Contact;
+import io.github.binaryguru101.AP.Birds.Yellow;
+//import io.github.binaryguru101.AP.Collisions.Contact;
 import io.github.binaryguru101.AP.Collisions.Trajectory;
 import io.github.binaryguru101.AP.HUD.HUD;
 import io.github.binaryguru101.AP.Pigs.Pigs;
@@ -34,8 +34,16 @@ import io.github.binaryguru101.AP.Blocks.Block; // Import the Block class
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import io.github.binaryguru101.AP.UI.PauseButton;
 
+import static com.badlogic.gdx.utils.JsonValue.ValueType.array;
+
 
 public class PlayScreen implements Screen {
+
+    // Store the catapult's position
+    private static final float CATAPULT_X = 50f;
+    private static final float CATAPULT_Y = 50f;
+    private static final float GROUND_Y = 70;
+
     private AngryBirdsGame game;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -64,6 +72,9 @@ public class PlayScreen implements Screen {
     private ImageButton pauseButton;
     private Texture pauseTexture;
 
+    private Array<Bird> birds;
+    private int currindex;
+
     public PlayScreen(AngryBirdsGame game) {
         this.game = game;
         camera = new OrthographicCamera();
@@ -75,17 +86,23 @@ public class PlayScreen implements Screen {
         // World setup
         world = new World(new Vector2(0, -9.8f), true); // Gravity set for downward motion
         debugRenderer = new Box2DDebugRenderer();
-        world.setContactListener(new Contact());
+//        world.setContactListener(new Contact());
 
-        // Add one test bird
-        testBird = new Red(world, 100f, 200f, "Red.png");
+        // Ground setup
+        createGround();
 
-        pig = new Pigs(world, 600f, 200f, "Pigs.png");
+        birds = new Array<>();
+//        birds.add(new Red(world, 100f, 200f, "Red.png"));
+        birds.add(new Yellow(world, 50f, 100f, "Yellow.png"));
+        birds.add(new Yellow(world, 25f, 100f, "Yellow.png"));
 
-        // Add blocks around the pig
-        createBlocks();
 
+        for (Bird bird : birds) {
+            bird.getBirdbody().setActive(false);
+        }
+        currindex = 0;
 
+        pig = new Pigs(world, 600f, 120, "Pigs.png");
 
         trajectory = new Trajectory();
         shapeRenderer = new ShapeRenderer();
@@ -98,13 +115,36 @@ public class PlayScreen implements Screen {
         // Catapult setup
         catapult = new Catapult(50, 50, "Catapult.png");
 
-        //blocks
+        // Blocks
         blocks = new Array<>();
+//        blocks.add(new Block(world, 600f, 200f, "Block.png"));
+        // Add blocks starting from the ground
+        float blockWidth = 70;  // Adjust based on your texture
+        float blockHeight = 20; // Adjust based on your texture
+        blocks.add(new Block(world,550,90,"Block.png"));
+        blocks.add(new Block(world,550,133,"Block.png"));
+        blocks.add(new Block(world,550,186,"Block.png"));
+        blocks.add(new Block(world,650,90,"Block.png"));
+        blocks.add(new Block(world,650,133,"Block.png"));
+        blocks.add(new Block(world,650,186,"Block.png"));
+        blocks.add(new Block(world,600,90,"BlockRot.png"));
+
+
+
+        Bird testBird = birds.get(currindex);
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 dragStart.set(screenToWorld(screenX, screenY));
+                System.out.println("START "+dragStart);
+                System.out.println("END:"+dragEnd);
+                Bird testBird = birds.get(currindex);
+                testBird.getBirdbody().setActive(true);
+                testBird.activateSpecialAbility();
+
+                System.out.println("TOUCHDOWN FUNCTION ");
+
                 isDragging = true;
                 return true;
             }
@@ -112,7 +152,14 @@ public class PlayScreen implements Screen {
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if (isDragging) {
+                    Bird testBird = birds.get(currindex);
+                    testBird.getBirdbody().setActive(true);
+
                     dragEnd.set(screenToWorld(screenX, screenY));
+                    System.out.println("START"+dragStart);
+                    System.out.println("END"+dragEnd);
+                    System.out.println("TOUCHDRAG FUNCTION " + dragEnd);
+
                 }
                 return true;
             }
@@ -120,10 +167,17 @@ public class PlayScreen implements Screen {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if (isDragging) {
+                    Bird testBird = birds.get(currindex);
+
+                    testBird.getBirdbody().setActive(true);
+                    testBird.activateSpecialAbility();
                     dragEnd.set(screenToWorld(screenX, screenY));
-                    Vector2 launchForce = dragStart.cpy().sub(dragEnd).scl(0.05f);
+                    Vector2 launchForce = dragStart.cpy().sub(dragEnd).scl(0.0f);
                     testBird.launch(dragStart, launchForce);
-                    drawTrajectory(dragStart, launchForce);
+                    System.out.println("TOUCHUP FUNCTION " + dragEnd + launchForce);
+                    System.out.println("START"+dragStart);
+                    System.out.println("END"+dragEnd);
+
                     isDragging = false;
                 }
                 return true;
@@ -131,44 +185,26 @@ public class PlayScreen implements Screen {
         });
     }
 
-    private void createBlocks() {
 
-            try {
-                Block block1 = new Block(world, 570f, 210f, "Block.png");
-                blocks.add(block1);
+    private void createGround() {
+        // Define the body and its properties
+        BodyDef groundBodyDef = new BodyDef();
+        groundBodyDef.position.set(400, 70); // Center the ground horizontally and set it near the bottom
+        groundBodyDef.type = BodyDef.BodyType.StaticBody;
 
-                Block block2 = new Block(world, 630f, 210f, "Block.png");
-                blocks.add(block2);
+        Body groundBody = world.createBody(groundBodyDef);
 
-                Block block3 = new Block(world, 600f, 250f, "Block.png");
-                blocks.add(block3);
+        // Define the shape and fixture
+        PolygonShape groundShape = new PolygonShape();
+        groundShape.setAsBox(400, 10); // Ground width = 800, height = 20 (scaled to Box2D units)
 
-                Block block4 = new Block(world, 600f, 180f, "Block.png");
-                blocks.add(block4);
-            } catch (Exception e) {
-                Gdx.app.error("Error", "Block creation failed", e);
-            }
-        }
+        FixtureDef groundFixtureDef = new FixtureDef();
+        groundFixtureDef.shape = groundShape;
+        groundFixtureDef.friction = 0.8f; // Add friction for realism
+        groundBody.createFixture(groundFixtureDef);
 
-
-    private void createUI() {
-        pauseTexture = new Texture(Gdx.files.internal("Pause.png"));
-
-        // Create the pause button using the loaded image
-        TextureRegionDrawable drawable = new TextureRegionDrawable(pauseTexture);
-        pauseButton = new ImageButton(drawable);
-
-        pauseButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // Show the pause screen
-                game.setScreen(new PauseScreen(game));
-            }
-        });
-
-        stage.addActor(pauseButton);
-
-        pauseButton.setPosition(Gdx.graphics.getWidth() - pauseButton.getWidth() - 10, Gdx.graphics.getHeight() - pauseButton.getHeight() - 10);
+        // Dispose of the shape after use
+        groundShape.dispose();
     }
 
     private Vector2 screenToWorld(int screenX, int screenY) {
@@ -178,32 +214,11 @@ public class PlayScreen implements Screen {
     }
 
 
-    //Work in Progress
-    public void drawTrajectory(Vector2 startPosition, Vector2 launchForce) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-
-        // Simulate trajectory
-        Vector2 currentPosition = new Vector2(startPosition);
-        float timeStep = 0.1f;
-        float totalTime = 2f;
-
-        for (float t = 0; t < totalTime; t += timeStep) {
-            Vector2 trajectoryPoint = currentPosition.cpy().add(launchForce.cpy().scl(t));
-            trajectoryPoint.y -= 0.5f * 9.8f * t * t; // Gravity effect
-
-            if (t > 0) {
-                shapeRenderer.line(lastPoint.x, lastPoint.y, trajectoryPoint.x, trajectoryPoint.y);
-            }
-            lastPoint.set(trajectoryPoint);
-        }
-        shapeRenderer.end();
-    }
-
     @Override
     public void show() {
         catapult = new Catapult(50, 50, "Catapult.png");
     }
+
 
     @Override
     public void render(float delta) {
@@ -218,25 +233,90 @@ public class PlayScreen implements Screen {
         // Step the physics simulation
         world.step(1 / 60f, 6, 2);
 
-        testBird.update(delta);
         pig.update(delta);
 
-        // If bird goes out of bounds, reset it
-        if (testBird.getX() < 0 || testBird.getX() > viewport.getWorldWidth() ||
-            testBird.getY() < 0 || testBird.getY() > viewport.getWorldHeight()) {
-            testBird.reset();
+
+        // Get the current bird
+        Bird currentBird = birds.get(currindex);
+
+        // Handle when a bird goes out of bounds
+        if (currentBird.getX() < 0 || currentBird.getX() > viewport.getWorldWidth() ||
+            currentBird.getY() < 0 || currentBird.getY() > viewport.getWorldHeight()
+
+
+        ) {
+
+            // Decrease lives and remove the current bird
             hud.decrementLives();
+            birds.removeIndex(currindex);
+
+            // Ensure the current index is within bounds
+            if (currindex >= birds.size) {
+                currindex = birds.size - 1; // Reset to last bird if needed
+            }
+
+            if (!birds.isEmpty()) {
+                Bird nextBird = birds.get(currindex);
+                nextBird.getBirdbody().setTransform(100, 200, 0); // Reset position to catapult
+                nextBird.getBirdbody().setLinearVelocity(0, 0); // Stop moving
+                nextBird.getBirdbody().setActive(false); // Reactivate bird for launch
+            } else {
+                game.setScreen(new GameOverScreen(game)); // Game over if no birds left
+            }
         }
 
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
         catapult.render(game.batch);
-        testBird.draw(game.batch);
         pig.draw(game.batch);
 
-        for(Block block : blocks){
+        // Draw and update all birds
+        for (Bird bird : birds) {
+            bird.draw(game.batch);
+            bird.update(delta);
+        }
+
+        for(Block block:blocks){
             block.draw(game.batch);
+            block.update(delta);
+//            block.getBody().setActive(false);
+//            System.out.println("PIGS POSITION"+pig.getX()+","+pig.getY());
+//            System.out.println("BLOCK POSITION"+block.getX()+","+block.getY());
+
+        }
+
+        game.batch.end();
+        hud.draw(game.batch);
+        debugRenderer.render(world, camera.combined);
+
+        // Check for SPACE key press to trigger special ability
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            System.out.println("SPACE pressed! Activating special ability.");
+            currentBird.useSpecialAbility();
+        }
+
+        // Other key press detection (e.g., for GameOverScreen or PauseScreen)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            game.setScreen(new GameOverScreen(game));
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new PauseScreen(game));
+        }
+
+
+
+        game.batch.setProjectionMatrix(camera.combined);
+        game.batch.begin();
+
+        catapult.render(game.batch);
+        pig.draw(game.batch);
+
+        // Draw all birds
+        for (Bird bird : birds) {
+            bird.draw(game.batch);
+            bird.update(delta);
         }
 
         game.batch.end();
@@ -244,8 +324,7 @@ public class PlayScreen implements Screen {
         hud.draw(game.batch);
         debugRenderer.render(world, camera.combined);
 
-
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.W)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             game.setScreen(new GameOverScreen(game)); // Restart the game or go back to the main menu
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

@@ -20,7 +20,7 @@ public class Trajectory {
 
         Vector2 position = birdBody.getPosition().cpy();
         Vector2 velocity = initialVelocity.cpy();
-        float timeStep = 1 / 60f; // The time step for prediction
+        float timeStep = 1 / 60f;
 
         for (int i = 0; i < 50; i++) {
             position.add(velocity.cpy().scl(timeStep));
